@@ -284,3 +284,104 @@ test('uploads local image before sending', function () {
 
     fclose($tempFile);
 });
+
+test('throws exception when sending without calling using', function () {
+    MessageBuilder::to('6281234567890')
+        ->text('Hello World')
+        ->send();
+})->throws(InvalidArgumentException::class, 'WhatspieClient is required');
+
+test('throws exception when sending without setting message type', function () {
+    MessageBuilder::to('6281234567890')
+        ->using($this->client)
+        ->send();
+})->throws(InvalidArgumentException::class, 'Message type is required');
+
+test('throws exception when uploading file without uploader', function () {
+    $tempFile = tmpfile();
+    fwrite($tempFile, 'file content');
+    $tempPath = stream_get_meta_data($tempFile)['uri'];
+
+    try {
+        MessageBuilder::to('6281234567890')
+            ->using($this->client)
+            ->file($tempPath, 'application/pdf');
+    } finally {
+        fclose($tempFile);
+    }
+})->throws(InvalidArgumentException::class, 'FileUploader is required for uploading files');
+
+test('throws exception when uploading image without uploader', function () {
+    $tempFile = tmpfile();
+    fwrite($tempFile, 'image content');
+    $tempPath = stream_get_meta_data($tempFile)['uri'];
+
+    try {
+        MessageBuilder::to('6281234567890')
+            ->using($this->client)
+            ->image($tempPath);
+    } finally {
+        fclose($tempFile);
+    }
+})->throws(InvalidArgumentException::class, 'FileUploader is required for uploading images');
+
+test('allows sending text message without uploader', function () {
+    $this->client
+        ->shouldReceive('send')
+        ->once()
+        ->with('6281234567890', [
+            'message' => [
+                'type' => 'text',
+                'text' => 'Hello World',
+            ],
+        ])
+        ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));
+
+    $result = MessageBuilder::to('6281234567890')
+        ->using($this->client) // No uploader provided
+        ->text('Hello World')
+        ->send();
+
+    expect($result->successful())->toBeTrue();
+});
+
+test('allows sending file message with public url without uploader', function () {
+    $this->client
+        ->shouldReceive('send')
+        ->once()
+        ->with('6281234567890', [
+            'message' => [
+                'type' => 'file',
+                'file' => 'https://example.com/document.pdf',
+                'mimetype' => 'application/pdf',
+            ],
+        ])
+        ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));
+
+    $result = MessageBuilder::to('6281234567890')
+        ->using($this->client) // No uploader provided
+        ->file('https://example.com/document.pdf', 'application/pdf')
+        ->send();
+
+    expect($result->successful())->toBeTrue();
+});
+
+test('allows sending image message with public url without uploader', function () {
+    $this->client
+        ->shouldReceive('send')
+        ->once()
+        ->with('6281234567890', [
+            'message' => [
+                'type' => 'image',
+                'image' => 'https://example.com/photo.jpg',
+            ],
+        ])
+        ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));
+
+    $result = MessageBuilder::to('6281234567890')
+        ->using($this->client) // No uploader provided
+        ->image('https://example.com/photo.jpg')
+        ->send();
+
+    expect($result->successful())->toBeTrue();
+});

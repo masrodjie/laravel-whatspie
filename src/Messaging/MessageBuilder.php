@@ -3,6 +3,7 @@
 namespace MasRodjie\LaravelWhatspie\Messaging;
 
 use Illuminate\Http\UploadedFile;
+use InvalidArgumentException;
 use MasRodjie\LaravelWhatspie\Contracts\WhatspieClient;
 
 class MessageBuilder
@@ -29,7 +30,7 @@ class MessageBuilder
         return new self($receiver);
     }
 
-    public function using(WhatspieClient $client, FileUploader $uploader): self
+    public function using(WhatspieClient $client, ?FileUploader $uploader = null): self
     {
         $this->client = $client;
         $this->uploader = $uploader;
@@ -53,6 +54,9 @@ class MessageBuilder
         if (is_string($file) && $this->isPublicUrl($file)) {
             $this->messageData['file'] = $file;
         } else {
+            if ($this->uploader === null) {
+                throw new InvalidArgumentException('FileUploader is required for uploading files. Call using() with a FileUploader instance.');
+            }
             $this->messageData['file'] = $this->uploader->upload($file);
         }
 
@@ -76,6 +80,9 @@ class MessageBuilder
         if (is_string($file) && $this->isPublicUrl($file)) {
             $this->messageData['image'] = $file;
         } else {
+            if ($this->uploader === null) {
+                throw new InvalidArgumentException('FileUploader is required for uploading images. Call using() with a FileUploader instance.');
+            }
             $this->messageData['image'] = $this->uploader->upload($file);
         }
 
@@ -121,6 +128,14 @@ class MessageBuilder
 
     public function send(): Result
     {
+        if ($this->client === null) {
+            throw new InvalidArgumentException('WhatspieClient is required. Call using() with a WhatspieClient instance before calling send().');
+        }
+
+        if ($this->messageType === null) {
+            throw new InvalidArgumentException('Message type is required. Call a message builder method (text, file, image, or location) before calling send().');
+        }
+
         $payload = [
             'message' => array_merge([
                 'type' => $this->messageType,
