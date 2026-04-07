@@ -2,6 +2,7 @@
 
 namespace MasRodjie\LaravelWhatspie\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use MasRodjie\LaravelWhatspie\Events\AudioMessageReceived;
@@ -14,8 +15,10 @@ use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
 
 class WebhookController
 {
-    public function __invoke(array $payload): Response
+    public function __invoke(Request $request): Response
     {
+        $payload = $request->all();
+
         // Dispatch the generic WebhookReceived event with raw payload
         Event::dispatch(new WebhookReceived($payload));
 
