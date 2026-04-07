@@ -5,6 +5,7 @@ namespace MasRodjie\LaravelWhatspie\Messaging;
 class Result
 {
     protected int $statusCode;
+
     protected array $data;
 
     public function __construct(int $statusCode, array $data)
@@ -20,7 +21,7 @@ class Result
 
     public function failed(): bool
     {
-        return !$this->successful();
+        return ! $this->successful();
     }
 
     public function id(): ?string

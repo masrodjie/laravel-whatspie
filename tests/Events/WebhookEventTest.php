@@ -1,12 +1,12 @@
 <?php
 
-use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
-use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\AudioMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\ContactMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\LocationMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
 
 describe('WebhookReceived', function () {
     it('can be instantiated with a payload', function () {

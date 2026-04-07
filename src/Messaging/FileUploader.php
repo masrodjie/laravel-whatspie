@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 class FileUploader
 {
     protected string $disk;
+
     protected string $path;
 
     public function __construct(string $disk, string $path)
@@ -61,6 +62,6 @@ class FileUploader
 
     protected function generateUniqueFileName(string $extension): string
     {
-        return Str::random(40) . '.' . $extension;
+        return Str::random(40).'.'.$extension;
     }
 }

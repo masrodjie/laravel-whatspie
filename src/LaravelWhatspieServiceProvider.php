@@ -7,7 +7,7 @@ use MasRodjie\LaravelWhatspie\Commands\LaravelWhatspieCommand;
 use MasRodjie\LaravelWhatspie\Contracts\WhatspieClient as WhatspieClientContract;
 use MasRodjie\LaravelWhatspie\Http\Controllers\WebhookController;
 use MasRodjie\LaravelWhatspie\Http\WhatspieClient;
-use MasRodjie\LaravelWhatspie\Messaging\MessageBuilder;
+use MasRodjie\LaravelWhatspie\Messaging\FileUploader;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -36,9 +36,12 @@ class LaravelWhatspieServiceProvider extends PackageServiceProvider
             );
         });
 
-        // Bind MessageBuilder as a singleton
-        $this->app->singleton(MessageBuilder::class, function () {
-            return new MessageBuilder();
+        // Bind FileUploader as a singleton with storage configuration
+        $this->app->singleton(FileUploader::class, function () {
+            return new FileUploader(
+                config('whatspie.storage.disk', 'public'),
+                config('whatspie.storage.path', 'whatspie')
+            );
         });
     }
 

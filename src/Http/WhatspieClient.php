@@ -9,7 +9,9 @@ use MasRodjie\LaravelWhatspie\Messaging\Result;
 class WhatspieClient implements WhatspieClientContract
 {
     protected string $apiToken;
+
     protected string $device;
+
     protected string $baseUrl = 'https://api.whatspie.com';
 
     public function __construct(string $apiToken, string $device)

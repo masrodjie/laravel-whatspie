@@ -6,6 +6,7 @@ use MasRodjie\LaravelWhatspie\Contracts\WhatspieClient;
 use MasRodjie\LaravelWhatspie\Messaging\FileUploader;
 use MasRodjie\LaravelWhatspie\Messaging\MessageBuilder;
 use MasRodjie\LaravelWhatspie\Messaging\Result;
+
 use function Pest\Laravel\mock;
 
 beforeEach(function () {
@@ -213,8 +214,9 @@ test('uploads local file before sending', function () {
     $this->client
         ->shouldReceive('send')
         ->once()
-        ->with('6281234567890', \Mockery::on(function ($payload) use (&$capturedPayload) {
+        ->with('6281234567890', Mockery::on(function ($payload) use (&$capturedPayload) {
             $capturedPayload = $payload;
+
             return true;
         }))
         ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));
@@ -240,8 +242,9 @@ test('uploads uploaded file before sending', function () {
     $this->client
         ->shouldReceive('send')
         ->once()
-        ->with('6281234567890', \Mockery::on(function ($payload) use (&$capturedPayload) {
+        ->with('6281234567890', Mockery::on(function ($payload) use (&$capturedPayload) {
             $capturedPayload = $payload;
+
             return true;
         }))
         ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));
@@ -267,8 +270,9 @@ test('uploads local image before sending', function () {
     $this->client
         ->shouldReceive('send')
         ->once()
-        ->with('6281234567890', \Mockery::on(function ($payload) use (&$capturedPayload) {
+        ->with('6281234567890', Mockery::on(function ($payload) use (&$capturedPayload) {
             $capturedPayload = $payload;
+
             return true;
         }))
         ->andReturn(new Result(200, ['data' => ['id' => 'msg123']]));

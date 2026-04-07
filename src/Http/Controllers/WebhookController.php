@@ -4,13 +4,13 @@ namespace MasRodjie\LaravelWhatspie\Http\Controllers;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
-use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
-use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\AudioMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\ContactMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\LocationMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
 
 class WebhookController
 {

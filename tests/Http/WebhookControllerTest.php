@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
-use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
-use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\AudioMessageReceived;
-use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\ContactMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\FileMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\ImageMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\LocationMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
+use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
 use MasRodjie\LaravelWhatspie\Http\Controllers\WebhookController;
 
 beforeEach(function () {
@@ -20,7 +20,7 @@ test('dispatches WebhookReceived event', function () {
         'message' => ['type' => 'chat', 'body' => 'Hello'],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $response = $controller->__invoke($payload);
 
     Event::assertDispatched(WebhookReceived::class, function ($event) use ($payload) {
@@ -34,7 +34,7 @@ test('dispatches TextMessageReceived for text messages', function () {
         'message' => ['type' => 'chat', 'body' => 'Hello World'],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(TextMessageReceived::class);
@@ -50,7 +50,7 @@ test('dispatches ImageMessageReceived for image messages', function () {
         ],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(ImageMessageReceived::class);
@@ -66,7 +66,7 @@ test('dispatches AudioMessageReceived for audio messages', function () {
         ],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(AudioMessageReceived::class);
@@ -82,7 +82,7 @@ test('dispatches FileMessageReceived for file messages', function () {
         ],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(FileMessageReceived::class);
@@ -99,7 +99,7 @@ test('dispatches ContactMessageReceived for contact messages', function () {
         ],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(ContactMessageReceived::class);
@@ -115,7 +115,7 @@ test('dispatches LocationMessageReceived for location messages', function () {
         ],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $controller->__invoke($payload);
 
     Event::assertDispatched(LocationMessageReceived::class);
@@ -127,7 +127,7 @@ test('returns 200 response', function () {
         'message' => ['type' => 'chat', 'body' => 'Hello'],
     ];
 
-    $controller = new WebhookController();
+    $controller = new WebhookController;
     $response = $controller->__invoke($payload);
 
     expect($response->status())->toBe(200);

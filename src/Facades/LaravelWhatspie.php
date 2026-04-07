@@ -8,11 +8,8 @@ use MasRodjie\LaravelWhatspie\Messaging\MessageBuilder;
 /**
  * @see MessageBuilder
  */
-class Whatspie extends Facade
+class LaravelWhatspie extends Facade
 {
-    /**
-     * Get the registered name of the component.
-     */
     protected static function getFacadeAccessor(): string
     {
         return MessageBuilder::class;
