@@ -150,3 +150,80 @@ test('returns 200 response', function () {
     expect($response->status())->toBe(200);
     expect($response->getContent())->toBe('OK');
 });
+
+test('allows requests without secret when not configured', function () {
+    config(['whatspie.webhook.secret' => null]);
+
+    $payload = [
+        'from' => '6281234567890',
+        'message' => ['type' => 'chat', 'body' => 'Hello'],
+    ];
+
+    $request = Request::create('/', 'POST', $payload);
+
+    $controller = new WebhookController;
+    $response = $controller->__invoke($request);
+
+    expect($response->status())->toBe(200);
+});
+
+test('allows requests with valid signature', function () {
+    $secret = 'test-webhook-secret';
+    config(['whatspie.webhook.secret' => $secret]);
+
+    $payload = [
+        'from' => '6281234567890',
+        'message' => ['type' => 'chat', 'body' => 'Hello'],
+    ];
+
+    $request = Request::create('/', 'POST', $payload);
+    $request->headers->set('X-Webhook-Secret', $secret);
+
+    $controller = new WebhookController;
+    $response = $controller->__invoke($request);
+
+    expect($response->status())->toBe(200);
+});
+
+test('rejects requests with invalid signature', function () {
+    config(['whatspie.webhook.secret' => 'correct-secret']);
+
+    $payload = [
+        'from' => '6281234567890',
+        'message' => ['type' => 'chat', 'body' => 'Hello'],
+    ];
+
+    $request = Request::create('/', 'POST', $payload);
+    $request->headers->set('X-Webhook-Secret', 'wrong-secret');
+
+    $controller = new WebhookController;
+
+    try {
+        $controller->__invoke($request);
+        expect(false)->toBeTrue('Should have thrown an exception');
+    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+        expect($e->getStatusCode())->toBe(401);
+        expect($e->getMessage())->toBe('Invalid webhook signature');
+    }
+});
+
+test('rejects requests without signature when secret is configured', function () {
+    config(['whatspie.webhook.secret' => 'configured-secret']);
+
+    $payload = [
+        'from' => '6281234567890',
+        'message' => ['type' => 'chat', 'body' => 'Hello'],
+    ];
+
+    $request = Request::create('/', 'POST', $payload);
+
+    $controller = new WebhookController;
+
+    try {
+        $controller->__invoke($request);
+        expect(false)->toBeTrue('Should have thrown an exception');
+    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+        expect($e->getStatusCode())->toBe(401);
+        expect($e->getMessage())->toBe('Invalid webhook signature');
+    }
+});

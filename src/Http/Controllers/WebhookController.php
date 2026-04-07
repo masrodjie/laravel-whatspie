@@ -17,6 +17,14 @@ class WebhookController
 {
     public function __invoke(Request $request): Response
     {
+        // Verify webhook secret if configured
+        if ($secret = config('whatspie.webhook.secret')) {
+            $signature = $request->header('X-Webhook-Secret');
+            if ($signature === null || !hash_equals($secret, $signature)) {
+                abort(401, 'Invalid webhook signature');
+            }
+        }
+
         $payload = $request->all();
 
         // Dispatch the generic WebhookReceived event with raw payload
