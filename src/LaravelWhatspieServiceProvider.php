@@ -23,7 +23,6 @@ class LaravelWhatspieServiceProvider extends PackageServiceProvider
         $package
             ->name('laravel-whatspie')
             ->hasConfigFile()
-            ->hasMigration('create_laravel_whatspie_table')
             ->hasCommand(LaravelWhatspieCommand::class);
     }
 
