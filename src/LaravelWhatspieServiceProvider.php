@@ -20,7 +20,15 @@ class LaravelWhatspieServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_laravel_whatspie_table')
-            ->hasCommand(LaravelWhatspieCommand::class)
-            ->hasFacade('Whatspie', \MasRodjie\LaravelWhatspie\Facades\Whatspie::class);
+            ->hasCommand(LaravelWhatspieCommand::class);
+    }
+
+    public function registeringPackage(): void
+    {
+        $this->app->bind(\MasRodjie\LaravelWhatspie\Messaging\MessageBuilder::class, function () {
+            return new \MasRodjie\LaravelWhatspie\Messaging\MessageBuilder(
+                app(\MasRodjie\LaravelWhatspie\Contracts\WhatspieClient::class)
+            );
+        });
     }
 }
