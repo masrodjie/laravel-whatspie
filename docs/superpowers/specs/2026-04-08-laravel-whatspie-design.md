@@ -24,6 +24,7 @@ Laravel Whatspie is a Laravel package that simplifies integration with the Whats
 | `Whatspie` facade | Main entry point for the fluent API |
 | `MessageBuilder` | Builds message payloads with chainable methods |
 | `WhatspieClient` | HTTP client that communicates with Whatspie API |
+| `FileUploader` | Handles local file uploads to storage disk |
 | `WebhookController` | Receives incoming webhook POST requests |
 | `EventDispatcher` | Dispatches Laravel events for each message type |
 | `Result` class | Encapsulates API response (success/failure + data) |
@@ -46,15 +47,27 @@ Whatspie::to('6281234567890')
     ->withTyping()
     ->send();
 
-// File/document
+// File/document from URL
 Whatspie::to('6281234567890')
     ->file('https://example.com/doc.pdf', 'application/pdf')
     ->fileName('Report.pdf')
     ->send();
 
-// Image with caption
+// File/document from local path (auto-uploads to configured storage)
+Whatspie::to('6281234567890')
+    ->file('/path/to/local/doc.pdf', 'application/pdf')
+    ->fileName('Report.pdf')
+    ->send();
+
+// Image from URL
 Whatspie::to('6281234567890')
     ->image('https://example.com/photo.jpg')
+    ->caption('Check this out')
+    ->send();
+
+// Image from UploadedFile (e.g., from form request)
+Whatspie::to('6281234567890')
+    ->image($request->file('photo'))
     ->caption('Check this out')
     ->send();
 
@@ -78,6 +91,57 @@ if ($result->successful()) {
 }
 ```
 
+## File Handling
+
+The package supports both public URLs and local files for sending images, documents, and other media.
+
+### URL-Based (Default)
+
+When a public URL is provided, it's sent directly to Whatspie:
+
+```php
+Whatspie::to('6281234567890')
+    ->image('https://example.com/photo.jpg')
+    ->send();
+```
+
+### Local File Upload
+
+When a local path or `UploadedFile` is provided, the package:
+1. Uploads the file to the configured Storage disk
+2. Generates a public URL
+3. Sends the URL to Whatspie
+
+```php
+// Local file path
+Whatspie::to('6281234567890')
+    ->image(storage_path('app/private/photo.jpg'))
+    ->send();
+
+// UploadedFile from form request
+Whatspie::to('6281234567890')
+    ->file($request->file('document'), 'application/pdf')
+    ->fileName('invoice.pdf')
+    ->send();
+```
+
+### Storage Configuration
+
+Files are stored using Laravel's Storage facade:
+
+```php
+// config/whatspie.php
+'storage' => [
+    'disk' => env('WHATSPIE_STORAGE_DISK', 'public'),
+    'path' => 'whatspie',
+],
+```
+
+- `disk`: Laravel filesystem disk (default: `public`)
+- `path`: Subdirectory within the disk (default: `whatspie`)
+
+**Note:** The configured disk must be publicly accessible for Whatspie to retrieve the file.
+
 ## Webhook System
 
 ### Configuration
@@ -92,6 +156,11 @@ return [
         'enabled' => true,
         'path' => '/whatspie/webhook',
         'secret' => env('WHATSPIE_WEBHOOK_SECRET'),
+    ],
+
+    'storage' => [
+        'disk' => env('WHATSPIE_STORAGE_DISK', 'public'),
+        'path' => 'whatspie',
     ],
 ];
 ```
@@ -166,6 +235,7 @@ src/
 │   └── WhatspieClient.php
 ├── Messaging/
 │   ├── MessageBuilder.php
+│   ├── FileUploader.php
 │   └── Result.php
 ├── Events/
 │   ├── WebhookReceived.php
@@ -183,8 +253,9 @@ src/
 
 - `illuminate/http` - HTTP client (already in Laravel)
 - `illuminate/events` - Event dispatcher (already in Laravel)
+- `illuminate/filesystem` - Storage facade for file uploads (already in Laravel)
 
-Uses Laravel's native `Http` facade - no external HTTP clients.
+Uses Laravel's native `Http` facade and `Storage` facade - no external HTTP clients.
 
 ## Testing
 
