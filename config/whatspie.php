@@ -15,6 +15,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | API Base URL
+    |--------------------------------------------------------------------------
+    |
+    | The base URL for the Whatspie API. You can override this for different
+    | environments or testing purposes.
+    |
+    */
+
+    'base_url' => env('WHATSPIE_API_URL', 'https://api.whatspie.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Device Number
     |--------------------------------------------------------------------------
     |

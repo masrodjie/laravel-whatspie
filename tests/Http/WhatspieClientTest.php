@@ -94,3 +94,26 @@ test('sends message with typing indicator', function () {
         return $request['simulate_typing'] === 1;
     });
 });
+
+test('uses custom base url when provided', function () {
+    $customClient = new WhatspieClient('test_token', '6281234567890', 'https://custom.api.example.com');
+
+    Http::fake([
+        'custom.api.example.com/*' => Http::response([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => ['id' => 'msg_custom', 'status' => 'pending'],
+        ], 200),
+    ]);
+
+    $result = $customClient->send('6289876543210', [
+        'type' => 'chat',
+        'params' => ['text' => 'Hello'],
+    ]);
+
+    expect($result->successful())->toBeTrue();
+
+    Http::assertSent(function ($request) {
+        return str_starts_with($request->url(), 'https://custom.api.example.com/');
+    });
+});

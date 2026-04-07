@@ -28,11 +28,12 @@ class LaravelWhatspieServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        // Bind WhatspieClient with api_token and device from config
+        // Bind WhatspieClient with api_token, device, and base_url from config
         $this->app->bind(WhatspieClientContract::class, function () {
             return new WhatspieClient(
                 config('whatspie.api_token'),
-                config('whatspie.device')
+                config('whatspie.device'),
+                config('whatspie.base_url')
             );
         });
 

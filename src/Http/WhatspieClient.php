@@ -12,12 +12,13 @@ class WhatspieClient implements WhatspieClientContract
 
     protected string $device;
 
-    protected string $baseUrl = 'https://api.whatspie.com';
+    protected string $baseUrl;
 
-    public function __construct(string $apiToken, string $device)
+    public function __construct(string $apiToken, string $device, ?string $baseUrl = null)
     {
         $this->apiToken = $apiToken;
         $this->device = $device;
+        $this->baseUrl = $baseUrl ?? config('whatspie.base_url', 'https://api.whatspie.com');
     }
 
     public function send(string $receiver, array $payload): Result
