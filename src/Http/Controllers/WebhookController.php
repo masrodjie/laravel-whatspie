@@ -20,7 +20,7 @@ class WebhookController
         // Verify webhook secret if configured
         if ($secret = config('whatspie.webhook.secret')) {
             $signature = $request->header('X-Webhook-Secret');
-            if ($signature === null || !hash_equals($secret, $signature)) {
+            if ($signature === null || ! hash_equals($secret, $signature)) {
                 abort(401, 'Invalid webhook signature');
             }
         }

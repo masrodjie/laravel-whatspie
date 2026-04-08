@@ -10,6 +10,7 @@ use MasRodjie\LaravelWhatspie\Events\LocationMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\TextMessageReceived;
 use MasRodjie\LaravelWhatspie\Events\WebhookReceived;
 use MasRodjie\LaravelWhatspie\Http\Controllers\WebhookController;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function () {
     Event::fake();
@@ -201,7 +202,7 @@ test('rejects requests with invalid signature', function () {
     try {
         $controller->__invoke($request);
         expect(false)->toBeTrue('Should have thrown an exception');
-    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    } catch (HttpException $e) {
         expect($e->getStatusCode())->toBe(401);
         expect($e->getMessage())->toBe('Invalid webhook signature');
     }
@@ -222,7 +223,7 @@ test('rejects requests without signature when secret is configured', function ()
     try {
         $controller->__invoke($request);
         expect(false)->toBeTrue('Should have thrown an exception');
-    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    } catch (HttpException $e) {
         expect($e->getStatusCode())->toBe(401);
         expect($e->getMessage())->toBe('Invalid webhook signature');
     }
