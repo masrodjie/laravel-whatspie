@@ -16,7 +16,7 @@ class MessageBuilder
 
     protected ?string $messageType = null;
 
-    protected array $messageData = [];
+    protected array $messageParams = [];
 
     protected bool $withTyping = false;
 
@@ -40,8 +40,8 @@ class MessageBuilder
 
     public function text(string $message): self
     {
-        $this->messageType = 'text';
-        $this->messageData['text'] = $message;
+        $this->messageType = 'chat';
+        $this->messageParams['text'] = $message;
 
         return $this;
     }
@@ -52,22 +52,23 @@ class MessageBuilder
 
         // Upload file if not a public URL
         if (is_string($file) && $this->isPublicUrl($file)) {
-            $this->messageData['file'] = $file;
+            $this->messageParams['document'] = ['url' => $file];
         } else {
             if ($this->uploader === null) {
                 throw new InvalidArgumentException('FileUploader is required for uploading files. Call using() with a FileUploader instance.');
             }
-            $this->messageData['file'] = $this->uploader->upload($file);
+            $url = $this->uploader->upload($file);
+            $this->messageParams['document'] = ['url' => $url];
         }
 
-        $this->messageData['mimetype'] = $mimetype;
+        $this->messageParams['mimetype'] = $mimetype;
 
         return $this;
     }
 
     public function fileName(string $name): self
     {
-        $this->messageData['filename'] = $name;
+        $this->messageParams['fileName'] = $name;
 
         return $this;
     }
@@ -78,12 +79,13 @@ class MessageBuilder
 
         // Upload file if not a public URL
         if (is_string($file) && $this->isPublicUrl($file)) {
-            $this->messageData['image'] = $file;
+            $this->messageParams['image'] = ['url' => $file];
         } else {
             if ($this->uploader === null) {
                 throw new InvalidArgumentException('FileUploader is required for uploading images. Call using() with a FileUploader instance.');
             }
-            $this->messageData['image'] = $this->uploader->upload($file);
+            $url = $this->uploader->upload($file);
+            $this->messageParams['image'] = ['url' => $url];
         }
 
         return $this;
@@ -91,7 +93,7 @@ class MessageBuilder
 
     public function caption(string $text): self
     {
-        $this->messageData['caption'] = $text;
+        $this->messageParams['caption'] = $text;
 
         return $this;
     }
@@ -99,22 +101,22 @@ class MessageBuilder
     public function location(float $lat, float $long): self
     {
         $this->messageType = 'location';
-        $this->messageData['lat'] = $lat;
-        $this->messageData['long'] = $long;
+        $this->messageParams['lat'] = $lat;
+        $this->messageParams['long'] = $long;
 
         return $this;
     }
 
     public function name(string $name): self
     {
-        $this->messageData['name'] = $name;
+        $this->messageParams['name'] = $name;
 
         return $this;
     }
 
     public function address(string $address): self
     {
-        $this->messageData['address'] = $address;
+        $this->messageParams['address'] = $address;
 
         return $this;
     }
@@ -137,13 +139,12 @@ class MessageBuilder
         }
 
         $payload = [
-            'message' => array_merge([
-                'type' => $this->messageType,
-            ], $this->messageData),
+            'type' => $this->messageType,
+            'params' => $this->messageParams,
         ];
 
         if ($this->withTyping) {
-            $payload['with_typing'] = true;
+            $payload['simulate_typing'] = 1;
         }
 
         return $this->client->send($this->receiver, $payload);

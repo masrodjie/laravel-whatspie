@@ -28,9 +28,25 @@ class WhatspieClient implements WhatspieClientContract
             'receiver' => $receiver,
         ], $payload);
 
+        // Debug: log the request payload
+        if (config('app.debug')) {
+            logger()->debug('Whatspie Request', [
+                'url' => "{$this->baseUrl}/messages",
+                'payload' => $payload,
+            ]);
+        }
+
         $response = Http::withToken($this->apiToken)
             ->acceptJson()
             ->post("{$this->baseUrl}/messages", $payload);
+
+        // Debug: log the response
+        if (config('app.debug')) {
+            logger()->debug('Whatspie Response', [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+        }
 
         return new Result(
             $response->status(),
